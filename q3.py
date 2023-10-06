@@ -1,4 +1,11 @@
 def solution(map):
+    def _map_remove_obstacle(map):
+        # generates a list of all possible maps
+        # first check the current shortest path
+        # then try to remove one obstacle along the path
+        # keep record of all records until the shortest path is found or all possible maps are generated
+        pass
+
     def _move(map, dir, steps):
         idx1 = steps[0][1]
         idx2 = steps[0][0]
