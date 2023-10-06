@@ -4,6 +4,8 @@ def solution(map):
         # first check the current shortest path
         # then try to remove one obstacle along the path
         # keep record of all records until the shortest path is found or all possible maps are generated
+
+        # another approach, save the nodes of all maps in a list, which either x, or y with same value means they are linked, then find the shortest path
         pass
 
     def _move(map, dir, steps):
