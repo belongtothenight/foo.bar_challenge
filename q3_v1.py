@@ -1,3 +1,5 @@
+import copy
+
 def solution(map):
     def _simple_map(map):
         def __move(map, dir, steps):
@@ -94,17 +96,18 @@ def solution(map):
                         val_bottom = map[idx1_bottom][idx2_bottom]
                     except:
                         val_bottom = 1
-                    if idx1_top < 0 or idx2_top < 0 or idx1_top >= map_w or idx2_top >= map_h:
+                    if (idx1_top < 0) or (idx2_top < 0) or (idx1_top >= map_w) or (idx2_top >= map_h):
                         val_top = 1
-                    if idx1_left < 0 or idx2_left < 0 or idx1_left >= map_w or idx2_left >= map_h:
+                    if (idx1_left < 0) or (idx2_left < 0) or (idx1_left >= map_w) or (idx2_left >= map_h):
                         val_left = 1
-                    if idx1_right < 0 or idx2_right < 0 or idx1_right >= map_w or idx2_right >= map_h:
+                    if (idx1_right < 0) or (idx2_right < 0) or (idx1_right >= map_w) or (idx2_right >= map_h):
                         val_right = 1
-                    if idx1_bottom < 0 & idx2_bottom < 0 or idx1_right >= map_w or idx2_right >= map_h:
+                    if (idx1_bottom < 0) or (idx2_bottom < 0) or (idx1_bottom >= map_w) or (idx2_bottom >= map_h):
                         val_bottom = 1
-                    if (val_top == 0 and val_bottom == 0) or (val_left == 0 and val_right == 0):
-                        continue
-                    if (val_top == 0 or val_left == 0 or val_right == 0 or val_bottom == 0):
+                    #! Used when encountering fork
+                    # if ((val_top == 0) and (val_bottom == 0)) or ((val_left == 0) and (val_right == 0)):
+                    #     continue
+                    if ((val_top == 0) or (val_left == 0) or (val_right == 0) or (val_bottom == 0)):
                         nodes.insert(0, [idx_i, idx_j])
         # print(nodes)
         return nodes
@@ -123,34 +126,74 @@ def solution(map):
         shortest_path_step_cnt = 0
         possible_paths = []
         possible_paths_step_cnt = []
-        nodes_stepped_on_flag = [True] + [False]*(len(nodes)-1)
-        while False in nodes_stepped_on_flag:
+        # while False in nodes_stepped_on_flag:
+        step_stack = []
+        step_stack_removed = []
+        while True:
             availabe_nodes = nodes.copy()
-            tmp_path = [nodes[0]]
-            tmp_path_step_cnt = 1
+            tmp_path = [availabe_nodes[0]]
+            tmp_path_step_cnt = [1]
+            deadend_flag = False
             while [0, 0] not in tmp_path:
                 try:
-                    availabe_nodes.remove(tmp_path[-1])
+                    availabe_nodes.remove(tmp_path[0])
                 except:
                     pass
                 tmp_possible_steps = []
                 tmp_possible_steps_step_cnt = []
+                #* find all possible steps
                 for idx, node in enumerate(availabe_nodes):
                     is_connected, step = __is_connected(tmp_path[0], node)
                     if is_connected:
-                        tmp_possible_steps.append(node)
-                        tmp_possible_steps_step_cnt.append(step)
+                        if node not in tmp_path:
+                            tmp_possible_steps.append(node)
+                            tmp_possible_steps_step_cnt.append(step)
                 if len(tmp_possible_steps) == 0:
-                    break
-                # * left first searching, prefer unvisited node
-                for idx, step in enumerate(tmp_possible_steps):
+                    #* no possible steps, break
+                    deadend_flag = True
+                elif len(tmp_possible_steps) == 1:
+                    #* only one possible step, take it
                     if step not in tmp_path:
-                        nodes_stepped_on_flag[nodes.index(step)] = True
-                        tmp_path.insert(0, step)
-                        tmp_path_step_cnt += tmp_possible_steps_step_cnt[idx]
-                        break
+                        tmp_path.insert(0, tmp_possible_steps[0])
+                        tmp_path_step_cnt.append(tmp_possible_steps_step_cnt[0])
+                    else:
+                        print("Error: step already in path.")
+                else:
+                    #* multiple possible steps, store options and take the first one
+                    if deadend_flag:
+                        next_step = step_stack.pop()
+                        tmp_path.pop()
+                        tmp_path_step_cnt.pop()
+                        tmp_path.insert(0, next_step)
+                        tmp_path_step_cnt.append(__is_connected(tmp_path[0], tmp_path[1])[1])
+                        deadend_flag = False
+                    else: # * take the closest step
+                        option_range = []
+                        for option in tmp_possible_steps:
+                            if option not in step_stack:
+                                option_range.append(__is_connected(tmp_path[0], option)[1])
+                            else: #* if option is in stack, run it
+                                option_range.append(-1)
+                        min_option_idx = option_range.index(min(option_range))
+                        tmp_path.insert(0, tmp_possible_steps[min_option_idx])
+                        tmp_path_step_cnt.append(tmp_possible_steps_step_cnt[min_option_idx])
+                        tmp_possible_steps.pop(min_option_idx)
+                        tmp_possible_steps_step_cnt.pop(min_option_idx)
+                        for option in tmp_possible_steps:
+                            if option not in step_stack:
+                                step_stack.append(option)
+                for removed_step in step_stack_removed:
+                    if removed_step in step_stack:
+                        step_stack.remove(removed_step)
+            for step in step_stack:
+                if step in tmp_path:
+                    step_stack.remove(step)
+                    step_stack_removed.append(step)
             possible_paths.append(tmp_path)
-            possible_paths_step_cnt.append(tmp_path_step_cnt)
+            possible_paths_step_cnt.append(sum(tmp_path_step_cnt))
+            if step_stack == []:
+                #* checked all possible paths, break
+                break
         shortest_path_step_cnt = min(possible_paths_step_cnt)
         shortest_path_idx = possible_paths_step_cnt.index(shortest_path_step_cnt)
         shortest_path = possible_paths[shortest_path_idx]
@@ -205,13 +248,13 @@ def solution(map):
                 walls.append([idx1_bottom, idx2_bottom])
         walls = list(set([tuple(t) for t in walls]))
         #* map remove walls
-        maps = [map]*len(walls)
+        maps = []
+        for i in range(len(walls)):
+            # maps.append(map.copy())
+            maps.append(copy.deepcopy(map))
+        #! bug here, all maps are the same
         for idx, wall in enumerate(walls):
-            print(wall)
             maps[idx][wall[0]][wall[1]] = 0
-            for a in tmp_map:
-                print(a)
-            print("Generated {} maps.".format(len(maps)), end='\r')
         return maps
 
     def _complex_map(map):
@@ -228,10 +271,13 @@ def solution(map):
         obj_removed_maps = _map_remove_obstacle(map, path)
         print("Generated {} maps.".format(len(obj_removed_maps)))
         for obj_removed_map in obj_removed_maps:
+            for i in range(len(obj_removed_map)):
+                print(obj_removed_map[i])
             nodes = _gen_nodes(obj_removed_map)
+            print("Generated {} nodes: {}".format(len(nodes), nodes))
             path, step_cnt = _find_shortest_path(nodes)
+            print("Shortest path: {} with {} steps.".format(path, step_cnt))
             step_hist.append(step_cnt)
-            print("Progress: {}%".format(len(step_hist)/len(obj_removed_maps)*100))
         return min(step_hist)
     
     # return _simple_map(map)
