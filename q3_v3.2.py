@@ -79,12 +79,16 @@ def solution(map):
                 current.is_closed = True
         return [] #* No path found
     
-    def perform_a_star_search(map_pss, print_text=False):
+    def perform_a_star_search(map_pss, invert=False, print_text=False):
         #* Initialize
         map_w = len(map_pss[0])
         map_h = len(map_pss)
         start = (0, 0)
         end = (map_h - 1, map_w - 1)
+        if invert:
+            tmp = start
+            start = end
+            end = tmp
         #* Print map
         if print_text:
             print("Map:")
@@ -138,7 +142,7 @@ def solution(map):
         return walls
     
     step_list = []
-    wall_list = wall_finder(map, mode="path")
+    wall_list = wall_finder(map, mode="all")
     search_times = len(wall_list)
     # print("Found {} walls".format(search_times))
     wall_list.insert(0, (0, 0))
@@ -146,65 +150,67 @@ def solution(map):
     for idx, wall in enumerate(wall_list):
         # print("Searching {}/{}".format(idx + 1, search_times))
         if idx == 0:
-            step_list.append(perform_a_star_search(map, print_text=False))
+            step_list.append(perform_a_star_search(map, invert=False, print_text=False))
+            step_list.append(perform_a_star_search(map, invert=True, print_text=False))
         else:
             map[wall[0]][wall[1]] = 0
-            step_list.append(perform_a_star_search(map, print_text=False))
+            step_list.append(perform_a_star_search(map, invert=False, print_text=False))
+            step_list.append(perform_a_star_search(map, invert=True, print_text=False))
             map[wall[0]][wall[1]] = 1
     # print("Step list: {}".format(step_list))
     return min(step_list)
 
 if __name__ == "__main__":
-    map = [[0, 1, 1, 0],
-           [0, 0, 0, 1],
-           [1, 1, 0, 0],
-           [1, 1, 1, 0]]
+    # [[0, 1, 1, 0],
+    #  [0, 0, 0, 1],
+    #  [1, 1, 0, 0],
+    #  [1, 1, 1, 0]]
     map = [[0, 1, 1, 0], [0, 0, 0, 1], [1, 1, 0, 0], [1, 1, 1, 0]]
     print(solution(map))
-    # map = [[0, 0, 0, 0, 0, 0],
-    #        [1, 1, 1, 1, 1, 0],
-    #        [0, 0, 0, 0, 0, 0],
-    #        [0, 1, 1, 1, 1, 1],
-    #        [0, 1, 1, 1, 1, 1],
-    #        [0, 0, 0, 0, 0, 0]]
+    # [[0, 0, 0, 0, 0, 0],
+    #  [1, 1, 1, 1, 1, 0],
+    #  [0, 0, 0, 0, 0, 0],
+    #  [0, 1, 1, 1, 1, 1],
+    #  [0, 1, 1, 1, 1, 1],
+    #  [0, 0, 0, 0, 0, 0]]
     map = [[0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 1, 0], [0, 0, 0, 0, 0, 0], [0, 1, 1, 1, 1, 1], [0, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0]]
     print(solution(map))
     # map = [[0, 0],
     #        [1, 0]]
     map = [[0, 0], [1, 0]]
     print(solution(map))
-    map = [[0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-           [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-           [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
-           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-           [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
-           [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
-           [1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
-           [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-           [1, 0, 1, 0, 1, 0, 1, 1, 1, 1],
-           [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]]
+    # [[0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    #  [0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    #  [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    #  [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    #  [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+    #  [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+    #  [1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+    #  [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+    #  [1, 0, 1, 0, 1, 0, 1, 1, 1, 1],
+    #  [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]]
     map = [[0, 1, 1, 1, 1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1, 1, 1, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 1, 1, 1, 1, 1, 1, 1, 1], [1, 0, 1, 0, 0, 0, 0, 0, 0, 1], [1, 0, 1, 0, 1, 1, 1, 1, 0, 1], [1, 0, 0, 0, 1, 0, 0, 0, 0, 1], [1, 0, 1, 0, 1, 0, 1, 1, 1, 1], [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]]
     print(solution(map))
-    # map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    # [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     print(solution(map))
-    # map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    #        [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    # [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    #  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     print(solution(map))
-    # map = [[0, 0, 0, 1, 0, 0, 1, 0, 0, 1],
-    #        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    # [[0, 0, 0, 1, 0, 0, 1, 0, 0, 1],
+    #  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     map = [[0, 0, 0, 1, 0, 0, 1, 0, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     print(solution(map))
-    # map = [[0, 0, 0, 0, 1],
-    #        [1, 0, 1, 1, 0],
-    #        [1, 0, 0, 0, 0]]
+    # [[0, 0, 0, 0, 1],
+    #  [1, 0, 1, 1, 0],
+    #  [1, 0, 0, 0, 0]]
     map = [[0, 0, 0, 0, 1], [1, 0, 1, 1, 0], [1, 0, 0, 0, 0]]
     print(solution(map))
-    # map = [[0, 0, 0],
-    #        [1, 1, 0],
-    #        [0, 0, 0],
-    #        [0, 1, 0],
-    #        [0, 0, 0]]
+    # [[0, 0, 0],
+    #  [1, 1, 0],
+    #  [0, 0, 0],
+    #  [0, 1, 0],
+    #  [0, 0, 0]]
     map = [[0, 0, 0], [1, 1, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0]]
     print(solution(map))
