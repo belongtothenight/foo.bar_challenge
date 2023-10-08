@@ -1,3 +1,6 @@
+# This is coded without any reference, only using my own knowledge.
+# Still buggy, but I think it's a good start into maze solving.
+
 import copy
 
 def solution(map):

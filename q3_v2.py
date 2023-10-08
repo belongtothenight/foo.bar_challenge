@@ -1,5 +1,6 @@
+# BFS Algorithm
 def solution(map):
-    def _depth_search(map):
+    def _depth_search(map, start, end):
         def __option_coordinate(coordinate):
             options = []
             if coordinate[0] != 0: # up
@@ -13,10 +14,10 @@ def solution(map):
             return options
         map_w = len(map[0])
         map_h = len(map)
-        for i in range(map_h):
-            print(map[i])
-        start_point = (0, 0)
-        end_point = (map_h - 1, map_w - 1)
+        # for i in range(map_h):
+        #     print(map[i])
+        start_point = start
+        end_point = end
         steps = [[start_point]]
         search_depth = 0
         while True:
@@ -52,7 +53,7 @@ def solution(map):
                 else:
                     search_depth += 1
     
-    def _wall_finder(map, mode="all"):
+    def _wall_finder(map, mode="path"):
         #* List out the wall that is next to the path
         map_w = len(map[0])
         map_h = len(map)
@@ -83,18 +84,24 @@ def solution(map):
     depth_list = []
     walls = _wall_finder(map)
     search_times = len(walls)
-    print("Found {} walls".format(search_times))
+    # print("Found {} walls".format(search_times))
     walls.insert(0, (0, 0))
     search_times += 1
+    map_w = len(map[0])
+    map_h = len(map)
+    start_point = (0, 0)
+    end_point = (map_h - 1, map_w - 1)
     for idx, wall in enumerate(walls):
-        print("Searching {}/{}".format(idx + 1, search_times))
+        # print("Searching {}/{}".format(idx + 1, search_times))
         if idx == 0:
-            depth_list.append(_depth_search(map))
+            depth_list.append(_depth_search(map, start_point, end_point))
+            depth_list.append(_depth_search(map, end_point, start_point))
         else:
             map[wall[0]][wall[1]] = 0
-            depth_list.append(_depth_search(map))
+            depth_list.append(_depth_search(map, start_point, end_point))
+            depth_list.append(_depth_search(map, end_point, start_point))
             map[wall[0]][wall[1]] = 1
-        print("Depth list: {}".format(depth_list))
+        # print("Depth list: {}".format(depth_list))
     return min(depth_list)
 
 
@@ -144,4 +151,11 @@ if __name__ == "__main__":
            [1, 0, 1, 1, 0],
            [1, 0, 0, 0, 0]]
     map = [[0, 0, 0, 0, 1], [1, 0, 1, 1, 0], [1, 0, 0, 0, 0]]
+    print(solution(map))
+    map = [[0, 0, 0],
+           [1, 1, 0],
+           [0, 0, 0],
+           [0, 1, 0],
+           [0, 0, 0]]
+    map = [[0, 0, 0], [1, 1, 0], [0, 0, 0], [0, 1, 0], [0, 0, 0]]
     print(solution(map))
