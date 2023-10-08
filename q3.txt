@@ -41,4 +41,4 @@ If your solution passes the test cases, it will be removed from your home folder
 
 
 Next:
-1. Maybe try to remove all wall? not just wall next to path?
+1. w!=h bug
