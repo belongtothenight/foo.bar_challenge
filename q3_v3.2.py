@@ -150,12 +150,12 @@ def solution(map):
     for idx, wall in enumerate(wall_list):
         # print("Searching {}/{}".format(idx + 1, search_times))
         if idx == 0:
-            step_list.append(perform_a_star_search(map, invert=False, print_text=False))
-            step_list.append(perform_a_star_search(map, invert=True, print_text=False))
+            step_list.append(perform_a_star_search(map, invert=False, print_text=True))
+            step_list.append(perform_a_star_search(map, invert=True, print_text=True))
         else:
             map[wall[0]][wall[1]] = 0
-            step_list.append(perform_a_star_search(map, invert=False, print_text=False))
-            step_list.append(perform_a_star_search(map, invert=True, print_text=False))
+            step_list.append(perform_a_star_search(map, invert=False, print_text=True))
+            step_list.append(perform_a_star_search(map, invert=True, print_text=True))
             map[wall[0]][wall[1]] = 1
     # print("Step list: {}".format(step_list))
     return min(step_list)
@@ -190,9 +190,6 @@ if __name__ == "__main__":
     #  [1, 0, 1, 0, 1, 0, 1, 1, 1, 1],
     #  [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]]
     map = [[0, 1, 1, 1, 1, 1, 1, 1, 1, 1], [0, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 1, 1, 1, 1, 1, 1, 1, 0, 1], [1, 0, 0, 0, 0, 0, 0, 0, 0, 1], [1, 0, 1, 1, 1, 1, 1, 1, 1, 1], [1, 0, 1, 0, 0, 0, 0, 0, 0, 1], [1, 0, 1, 0, 1, 1, 1, 1, 0, 1], [1, 0, 0, 0, 1, 0, 0, 0, 0, 1], [1, 0, 1, 0, 1, 0, 1, 1, 1, 1], [1, 0, 1, 0, 1, 0, 0, 0, 0, 0]]
-    print(solution(map))
-    # [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-    map = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
     print(solution(map))
     # [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     #  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
